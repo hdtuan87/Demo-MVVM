@@ -3,6 +3,9 @@ package hdtuan.com.person.viewModel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import android.text.TextUtils
+import hdtuan.com.person.exceptions.AgeWrongException
+import hdtuan.com.person.exceptions.NameEmptyException
 import hdtuan.com.person.models.Person
 
 class PersonViewModel : ViewModel() {
@@ -23,6 +26,18 @@ class PersonViewModel : ViewModel() {
         person.age = 31
         persons.value = ArrayList()
         persons.value!!.add(person)
+    }
+
+    fun addPerson(name: String, age: Int) {
+        if (TextUtils.isEmpty(name)){
+            throw NameEmptyException()
+        }
+
+        if (age < 1){
+            throw AgeWrongException()
+        }
+        val person = Person(name, age)
+        addPerson(person)
     }
 
     fun addPerson(person: Person) {

@@ -1,9 +1,12 @@
-package hdtuan.com.person
+package hdtuan.com.person.views
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import hdtuan.com.person.R
+import hdtuan.com.person.exceptions.AgeWrongException
+import hdtuan.com.person.exceptions.NameEmptyException
 import hdtuan.com.person.models.Person
 import hdtuan.com.person.viewModel.PersonViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -16,11 +19,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         mViewModel = ViewModelProviders.of(this).get(PersonViewModel::class.java)
-        mViewModel.getPersons().observe(this, Observer { _ ->
+        mViewModel.getPersons().observe(this, Observer {
             updateUI(mViewModel.currentPerson())
         })
 
-        btnAdd.setOnClickListener { _ ->
+        btnAdd.setOnClickListener {
             addPerson()
         }
 
@@ -34,23 +37,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addPerson() {
-        val person = Person()
-        person.name = edtName.text.toString().trim()
+        val name = edtName.text.toString().trim()
         val age = edtAge.text.toString().trim()
-        if (person.name.isEmpty()) {
+
+        try {
+            mViewModel.addPerson(name, age = age.toInt())
+            edtName.setText("")
+            edtAge.setText("")
+        } catch (nameError: NameEmptyException) {
             edtName.error = "Chưa nhập tên"
-            return
+        } catch (ageError: AgeWrongException) {
+            edtAge.error = "Chưa nhập tuổi"
         }
 
-        if (age.isEmpty()) {
-            edtAge.error = "Chưa nhập tuổi"
-            return
-        } else {
-            person.age = age.toInt()
-        }
-        edtName.setText("")
-        edtAge.setText("")
-        mViewModel.addPerson(person)
     }
 
     private fun updateUI(person: Person) {
